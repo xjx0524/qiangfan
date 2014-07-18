@@ -5,12 +5,17 @@ class Goods {
 	private static $goodsUrl = 'http://buy.ubox.cn/index/vminfo/0231003/1?tabid=2&page=1';
 	private static $buyUrl = 'http://buy.ubox.cn/index/buy';
 
-	public static function getGoods() {
+	private static function baixing() {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, Goods::$goodsUrl);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$res = json_decode(curl_exec($ch));
 		curl_close($ch);
+		return $res;
+	}
+
+	public static function getGoods() {
+		$res = Goods::baixing();
 
 		$list = array();
 		if ($res->head->message == '请求成功') {
@@ -23,12 +28,13 @@ class Goods {
 	}
 
 	public static function buy() {
+		if (!Goods::onSell()) return "未开启";
 		$couponId = '3953839';
 		$vmCode = '0231003';
-		$vTypeId = '2';
+		$vTypeId = '1';
 		$sellerId = 2;
 		$tabCategoryId = 2;
-		$willList = [5006, 7249];
+		$willList = [5241,5236,5238,5470,5837,7723,4935,4938,4941,5102,5124,5201,7412,7541,5595,5663,5666,3401,4423,5100,7252,7364,7366,7397];
 		$productList = Goods::getGoods();
 
 		$options = [
@@ -40,6 +46,7 @@ class Goods {
 		];
 		foreach ($willList as $productId) {
 			if ($p = Goods::get($productList, $productId)) {
+				if ($p->num == 0) continue;
 				$data = json_encode([
 					"sellerId" => $sellerId,
 					"couponId" => $couponId,
@@ -58,8 +65,8 @@ class Goods {
 					$body = substr($response, $headerSize);
 				}
 				curl_close($ch);
-				echo $body;
-				break;
+				var_dump($p);
+				return $body;
 			}
 		}
 
@@ -71,5 +78,11 @@ class Goods {
 				return $p;
 		}
 		return null;
+	}
+
+	private static function onSell() {
+		$res = Goods::baixing();
+		if ($res->data->sellStatus == 1) return true;
+		return false;
 	}
 }
