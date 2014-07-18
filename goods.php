@@ -34,7 +34,7 @@ class Goods {
 		$vTypeId = '1';
 		$sellerId = 2;
 		$tabCategoryId = 2;
-		$willList = [5241,5236,5238,5470,5837,7723,4935,4938,4941,5102,5124,5201,7412,7541,5595,5663,5666,3401,4423,5100,7252,7364,7366,7397];
+		$willList = [3682,4935,5102,5124,5192,5778,5783,5838,7225,7411,7413,7813,7814];
 		$productList = Goods::getGoods();
 
 		$options = [
@@ -65,11 +65,13 @@ class Goods {
 					$body = substr($response, $headerSize);
 				}
 				curl_close($ch);
-				var_dump($p);
-				return $body;
+				if ($body->head->status == 1) {
+					var_dump($p);
+					return $body;
+				}
 			}
 		}
-
+		return "没有你想要的或者都卖完了";
 	}
 
 	private static function get($productList, $productId) {
