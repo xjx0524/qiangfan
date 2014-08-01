@@ -29,12 +29,12 @@ class Goods {
 
 	public static function buy() {
 		if (!Goods::onSell()) return "未开启";
-		$couponId = '3953839';
+		$couponId = '4084203';
 		$vmCode = '0231003';
 		$vTypeId = '1';
 		$sellerId = 2;
 		$tabCategoryId = 2;
-		$willList = [3682,4935,5102,5124,5192,5778,5783,5838,7225,7411,7413,7813,7814];
+		$willList = [];
 		$productList = Goods::getGoods();
 
 		$options = [
@@ -65,10 +65,8 @@ class Goods {
 					$body = substr($response, $headerSize);
 				}
 				curl_close($ch);
-				if ($body->head->status == 1) {
-					var_dump($p);
-					return $body;
-				}
+				var_dump($p);
+				return $body;
 			}
 		}
 		return "没有你想要的或者都卖完了";
@@ -82,7 +80,7 @@ class Goods {
 		return null;
 	}
 
-	private static function onSell() {
+	public static function onSell() {
 		$res = Goods::baixing();
 		if ($res->data->sellStatus == 1) return true;
 		return false;
