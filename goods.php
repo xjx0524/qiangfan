@@ -34,27 +34,27 @@ class Goods {
 		$vTypeId = '1';
 		$sellerId = 2;
 		$tabCategoryId = 2;
-		$willList = [];
+		$willList = array();
 		$productList = Goods::getGoods();
 
-		$options = [
+		$options = array(
 			CURLOPT_URL => Goods::$buyUrl,
 			CURLOPT_HEADER => true,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_POST => true,
 			CURLOPT_COOKIE => "PHPSESSID=5usi2792b1hcsdcvjabbfb5356; SHOPPINGCART=cyd9X7Lea8OWke226nExPQER7ODeqAhP8HBwPEWSJlOwA99SzCKVB3z61Nag5-KyjLFHXuV0KwGPPlO5DszBVnu3wFwf_pTIvQZzjwdMjXXBbpEs0V9y4FLRnUf07fgaKaT03Ms5ZWPnNboKVhjRzD2yt-9TL4y135Uy0J1WmwM; Hm_lvt_f8cb16b7a685768c976896e565ad32ae=1405560087; Hm_lpvt_f8cb16b7a685768c976896e565ad32ae=1405562211"
-		];
+		);
 		foreach ($willList as $productId) {
 			if ($p = Goods::get($productList, $productId)) {
 				if ($p->num == 0) continue;
-				$data = json_encode([
+				$data = json_encode(array(
 					"sellerId" => $sellerId,
 					"couponId" => $couponId,
 					"productId" => $productId,
 					"vmCode" => $vmCode,
 					"vTypeId" => $vTypeId,
 					"tabCategoryId" => $tabCategoryId
-				]);
+				));
 				$options[CURLOPT_POSTFIELDS] = $data;
 				$ch = curl_init();
 				curl_setopt_array($ch, $options);
