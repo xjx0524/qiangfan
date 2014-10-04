@@ -28,13 +28,13 @@ class Goods {
 	}
 
 	public static function buy() {
-		if (!Goods::onSell()) return "未开启";
-		$couponId = '4177821';
+		if (!Goods::onSell()) return "未开�;
+		$couponId = '4084203';
 		$vmCode = '0231003';
 		$vTypeId = '1';
 		$sellerId = 2;
 		$tabCategoryId = 2;
-		$willList = array(8614);
+		$willList = array();
 		$productList = Goods::getGoods();
 
 		$options = array(
@@ -69,7 +69,7 @@ class Goods {
 				return $body;
 			}
 		}
-		return "没有你想要的或者都卖完了";
+		return "没有你想要的或者都卖完�;
 	}
 
 	private static function get($productList, $productId) {
