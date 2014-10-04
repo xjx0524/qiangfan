@@ -5,12 +5,17 @@ class Goods {
 	private static $goodsUrl = 'http://buy.ubox.cn/index/vminfo/0231003/1?tabid=2&page=1';
 	private static $buyUrl = 'http://buy.ubox.cn/index/buy';
 
-	public static function getGoods() {
+	private static function baixing() {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, Goods::$goodsUrl);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		$res = json_decode(curl_exec($ch));
 		curl_close($ch);
+		return $res;
+	}
+
+	public static function getGoods() {
+		$res = Goods::baixing();
 
 		$list = array();
 		if ($res->head->message == '请求成功') {
@@ -23,31 +28,33 @@ class Goods {
 	}
 
 	public static function buy() {
-		$couponId = '3953839';
+		if (!Goods::onSell()) return "未开启";
+		$couponId = '4177821';
 		$vmCode = '0231003';
-		$vTypeId = '2';
+		$vTypeId = '1';
 		$sellerId = 2;
 		$tabCategoryId = 2;
-		$willList = [5006, 7249];
+		$willList = array(8614);
 		$productList = Goods::getGoods();
 
-		$options = [
+		$options = array(
 			CURLOPT_URL => Goods::$buyUrl,
 			CURLOPT_HEADER => true,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_POST => true,
-			CURLOPT_COOKIE => "PHPSESSID=5usi2792b1hcsdcvjabbfb5356; SHOPPINGCART=cyd9X7Lea8OWke226nExPQER7ODeqAhP8HBwPEWSJlOwA99SzCKVB3z61Nag5-KyjLFHXuV0KwGPPlO5DszBVnu3wFwf_pTIvQZzjwdMjXXBbpEs0V9y4FLRnUf07fgaKaT03Ms5ZWPnNboKVhjRzD2yt-9TL4y135Uy0J1WmwM; Hm_lvt_f8cb16b7a685768c976896e565ad32ae=1405560087; Hm_lpvt_f8cb16b7a685768c976896e565ad32ae=1405562211"
-		];
+			CURLOPT_COOKIE => "SHOPPINGCART=cyd9X7Lea8OWke226nExPQER7ODeqAhP8HBwPEWSJlOwA99SzCKVB3z61Nag5-KyjLFHXuV0KwGPPlO5DszBVnu3wFwf_pTIvQZzjwdMjXXBbpEs0V9y4FLRnUf07fgaf5PLg5j3jSW4W_shK-oNPmb9cZk17SmVgPis9QT63aY; PHPSESSID=55vl4igjgvfd09v55i6qrff137; Hm_lvt_f8cb16b7a685768c976896e565ad32ae=1409629722,1409716029,1409802631,1409888102; Hm_lpvt_f8cb16b7a685768c976896e565ad32ae=1409888105"
+		);
 		foreach ($willList as $productId) {
 			if ($p = Goods::get($productList, $productId)) {
-				$data = json_encode([
+				if ($p->num == 0) continue;
+				$data = json_encode(array(
 					"sellerId" => $sellerId,
 					"couponId" => $couponId,
 					"productId" => $productId,
 					"vmCode" => $vmCode,
 					"vTypeId" => $vTypeId,
 					"tabCategoryId" => $tabCategoryId
-				]);
+				));
 				$options[CURLOPT_POSTFIELDS] = $data;
 				$ch = curl_init();
 				curl_setopt_array($ch, $options);
@@ -58,11 +65,11 @@ class Goods {
 					$body = substr($response, $headerSize);
 				}
 				curl_close($ch);
-				echo $body;
-				break;
+				var_dump($p);
+				return $body;
 			}
 		}
-
+		return "没有你想要的或者都卖完了";
 	}
 
 	private static function get($productList, $productId) {
@@ -71,5 +78,11 @@ class Goods {
 				return $p;
 		}
 		return null;
+	}
+
+	public static function onSell() {
+		$res = Goods::baixing();
+		if ($res->data->sellStatus == 1) return true;
+		return false;
 	}
 }
